@@ -11,11 +11,8 @@ export class Countdown {
     /** Command prefix; carried over from the environment */
     private commandPrefix = process.env.DISCORD_COMMAND_PREFIX!;
 
-    /** Dev Mode - for restricting input to a specific test channel */
-    private dev = process.env.DEV === 'true';
-
-    /** Test Channel ID for if we're in dev mode */
-    private testChannelId = process.env.DISCORD_TEST_CHANNEL_ID!;
+    /** Bot Commands channel ID - only valid channel in which we'll send replies */
+    private botCommandsChannelId = process.env.DISCORD_BOT_COMMANDS_CHANNEL_ID!;
 
     /** List of commands which will trigger a reply */
     private commands = [
@@ -84,7 +81,7 @@ Find a countdown to launch here: https://polygonscan.com/block/countdown/${this.
             return false;
         }
 
-        if (this.dev && message.channel.id !== this.testChannelId) {
+        if (message.channel.id !== this.botCommandsChannelId) {
             return false;
         }
 
