@@ -1,4 +1,5 @@
 import { Client, Intents } from 'discord.js';
+import { Bot } from './bot/bot';
 
 if (!process.env.DISCORD_BOT_TOKEN) {
     console.error('No Discord Bot Token Found in Environment');
@@ -15,30 +16,20 @@ if (!process.env.DISCORD_TEST_CHANNEL_ID) {
     process.exit(1);
 }
 
-// bot client
+// Discord.js client
 const client = new Client({
     intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS]
 });
 
-client.on('messageCreate', async (message) => {
-    if (process.env.DEV === 'true' && message.channel.id !== process.env.DISCORD_TEST_CHANNEL_ID) {
-        return;
-    }
-
-    if (client.user === message.author) {
-        return;
-    }
-
-    if (message.content === '!goodbot') {
-        await message.reply(':blush: :blush:');
-    }
-});
-
-client.login(process.env.DISCORD_BOT_TOKEN!).then(
+// log in
+client.login(process.env.DISCORD_BOT_TOKEN).then(
     () => {
-        console.log('INITIALIZED');
+        console.log('Bot Logged In');
+
+        // initialize the bot
+        new Bot(client);
     },
     (err) => {
-        console.error('ERROR:', err);
+        console.error('Error during login:', err)
     }
 );
