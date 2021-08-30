@@ -24,9 +24,15 @@ export class Countdown {
         `${this.commandPrefix}when`
     ];
 
+    /** Launch Block for reply content */
+    private launchBlock = process.env.COUNTDOWN_LAUNCH_BLOCK!;
+
     /** Content of the reply */
+    // eslint-ignore-next-line
     private message = `
-        CryptoVikings is launching at block **18721000**!
+    CryptoVikings is launching at block **18721000**!
+
+Find a countdown to launch here: https://polygonscan.com/block/countdown/${this.launchBlock}
     `;
 
     /**
