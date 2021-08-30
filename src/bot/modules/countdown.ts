@@ -24,6 +24,12 @@ export class Countdown {
         `${this.commandPrefix}when`
     ];
 
+    /** Rate limit in ms, from the environment */
+    private rateLimit = parseInt(process.env.COUNTDOWN_RATE_LIMIT!, 10);
+
+    /** Last send timestamp in ms for rate limiting */
+    private lastSend = 0;
+
     /** Launch Block for reply content */
     private launchBlock = process.env.COUNTDOWN_LAUNCH_BLOCK!;
 
@@ -58,6 +64,7 @@ Find a countdown to launch here: https://polygonscan.com/block/countdown/${this.
     private async onMessageCreate(message: Message): Promise<void> {
         if (this.shouldRespond(message)) {
             await message.reply(this.message);
+            this.lastSend = message.createdTimestamp;
         }
     }
 
@@ -70,6 +77,10 @@ Find a countdown to launch here: https://polygonscan.com/block/countdown/${this.
      */
     private shouldRespond(message: Message): boolean {
         if (message.author === this.clientUser) {
+            return false;
+        }
+
+        if (message.createdTimestamp - this.lastSend <= this.rateLimit) {
             return false;
         }
 
