@@ -11,9 +11,6 @@ export class Countdown {
     /** Command prefix; carried over from the environment */
     private commandPrefix = process.env.DISCORD_COMMAND_PREFIX!;
 
-    /** Bot Commands channel ID - only valid channel in which we'll send replies */
-    private botCommandsChannelId = process.env.DISCORD_BOT_COMMANDS_CHANNEL_ID!;
-
     /** List of commands which will trigger a reply */
     private commands = [
         `${this.commandPrefix}countdown`,
@@ -78,10 +75,6 @@ Find a countdown to launch here: https://polygonscan.com/block/countdown/${this.
         }
 
         if (message.createdTimestamp - this.lastSend <= this.rateLimit) {
-            return false;
-        }
-
-        if (message.channel.id !== this.botCommandsChannelId) {
             return false;
         }
 
