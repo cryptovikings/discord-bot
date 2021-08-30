@@ -3,12 +3,13 @@
     "version": "0.0.1",
     "scripts": {
         "lint": "eslint --ext .ts --fix src",
-        "dev": "ts-node-dev --cls --notify=false --inspect -T -r ./src/dotenv.ts ./src/index.ts",
+        "dev": "ts-node-dev --cls --notify=false --inspect -T -r ./src/config/dotenv.ts ./src/index.ts",
         "dist": "tsc --project ./tsconfig.dist.json"
     },
     "dependencies": {
         "discord.js": "^13.1.0",
-        "dotenv-safe": "^8.2.0"
+        "dotenv-safe": "^8.2.0",
+        "ethers": "^5.4.6"
     },
     "devDependencies": {
         "@types/dotenv-safe": "^8.1.2",
