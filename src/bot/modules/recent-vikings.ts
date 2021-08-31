@@ -19,11 +19,11 @@ export class RecentVikings {
     private readonly pollingInterval = parseInt(process.env.ETH_LISTEN_INTERVAL!, 10);
 
     /** Recent Vikings Channel ID to post messages to */
-    private recentVikingsChannelId = process.env.DISCORD_RECENT_VIKINGS_CHANNEL_ID!;
+    private recentVikingsChannelId = process.env.MODULE_RECENT_VIKINGS_CHANNEL_ID!;
 
     private channel: TextChannel | undefined;
 
-    private readonly apiVikingOut = path.join(__dirname, '../../../../', process.env.API_VIKING_OUTPUT!);
+    private readonly vikingImageDirectory = path.join(__dirname, '../../../../', process.env.MODULE_RECENT_VIKINGS_IMAGE_INPUT!);
 
     /**
      * Constructor
@@ -31,9 +31,6 @@ export class RecentVikings {
      * @param client the Discord.js Client
      */
     public constructor(client: Client) {
-        console.log(this.apiVikingOut);
-        console.log(__dirname);
-
         client.channels.fetch(this.recentVikingsChannelId).then(
             (channel) => {
                 if (channel && this.isTextChannel(channel)) {
@@ -57,7 +54,7 @@ export class RecentVikings {
         void this.channel?.send({
             content: this.message(id.toNumber()),
             files: [
-                `${this.apiVikingOut}/viking_${id.toNumber()}.png`
+                `${this.vikingImageDirectory}/viking_${id.toNumber()}.png`
             ]
         });
     }

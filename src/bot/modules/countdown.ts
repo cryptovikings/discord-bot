@@ -5,31 +5,31 @@ import { Client, ClientUser, Message } from 'discord.js';
  */
 export class Countdown {
 
-    /** Client User; for ensuring that the Bot doesn't reply to itself */
-    private clientUser: ClientUser;
-
     /** Command prefix; carried over from the environment */
-    private commandPrefix = process.env.DISCORD_COMMAND_PREFIX!;
+    private readonly commandPrefix = process.env.DISCORD_COMMAND_PREFIX!;
+
+    /** Client User; for ensuring that the Bot doesn't reply to itself */
+    private readonly clientUser: ClientUser;
 
     /** List of commands which will trigger a reply */
-    private commands = [
+    private readonly commands = [
         `${this.commandPrefix}countdown`,
         `${this.commandPrefix}launch`,
         `${this.commandPrefix}when`
     ];
 
     /** Rate limit in ms, from the environment */
-    private rateLimit = parseInt(process.env.COUNTDOWN_RATE_LIMIT!, 10);
+    private readonly rateLimit = parseInt(process.env.MODULE_COUNTDOWN_RATE_LIMIT!, 10);
+
+    /** Launch Block for reply content */
+    private readonly launchBlock = process.env.MODULE_COUNTDOWN_LAUNCH_BLOCK!;
 
     /** Last send timestamp in ms for rate limiting */
     private lastSend = 0;
 
-    /** Launch Block for reply content */
-    private launchBlock = process.env.COUNTDOWN_LAUNCH_BLOCK!;
-
     /** Content of the reply */
     // eslint-ignore-next-line
-    private message = `
+    private readonly message = `
     CryptoVikings is launching at block **18721000**!
 
 Find a countdown to launch here: https://polygonscan.com/block/countdown/${this.launchBlock}

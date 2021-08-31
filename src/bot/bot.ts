@@ -8,12 +8,27 @@ import { RecentVikings } from './modules/recent-vikings';
 export class Bot {
 
     /**
-     * Constructor - initialize all Modules
+     * Whether or not to initialize the Countdown module
+     */
+    private countdown = process.env.MODULE_COUNTDOWN === 'true';
+
+    /**
+     * Whether or not to initialize the Recent Vikings module
+     */
+    private recentVikigns = process.env.MODULE_RECENT_VIKINGS === 'true';
+
+    /**
+     * Constructor - initialize all enabled Modules
      *
      * @param client the Discord.js client
      */
     public constructor(client: Client) {
-        new Countdown(client);
-        new RecentVikings(client);
+        if (this.countdown) {
+            new Countdown(client);
+        }
+
+        if (this.recentVikigns) {
+            new RecentVikings(client);
+        }
     }
 }
