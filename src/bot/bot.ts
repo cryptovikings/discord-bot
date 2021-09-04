@@ -1,4 +1,5 @@
 import { Client } from 'discord.js';
+import { Commands } from './modules/commands';
 import { Countdown } from './modules/countdown';
 import { RecentVikings } from './modules/recent-vikings';
 
@@ -8,14 +9,19 @@ import { RecentVikings } from './modules/recent-vikings';
 export class Bot {
 
     /**
-     * Whether or not to initialize the Countdown module
+     * Whether or not to initialize the Commands module
+     */
+    private commands = process.env.MODULE_COMMANDS === 'true';
+
+    /**
+     * Whether or not to initialize the Countdown Module
      */
     private countdown = process.env.MODULE_COUNTDOWN === 'true';
 
     /**
      * Whether or not to initialize the Recent Vikings module
      */
-    private recentVikigns = process.env.MODULE_RECENT_VIKINGS === 'true';
+    private recentVikings = process.env.MODULE_RECENT_VIKINGS === 'true';
 
     /**
      * Constructor - initialize all enabled Modules
@@ -23,11 +29,15 @@ export class Bot {
      * @param client the Discord.js client
      */
     public constructor(client: Client) {
+        if (this.commands) {
+            new Commands(client);
+        }
+
         if (this.countdown) {
             new Countdown(client);
         }
 
-        if (this.recentVikigns) {
+        if (this.recentVikings) {
             new RecentVikings(client);
         }
     }

@@ -1,91 +1,139 @@
-import { Client, ClientUser, Message } from 'discord.js';
+import { Client, TextChannel } from 'discord.js';
+import { ChannelUtils } from '../../utils/channel';
+import { TimeUtils } from '../../utils/time';
 
 /**
- * Countdown module - reads messages for countdown-related commands and replies with information about the CryptoVikings launch
+ * Countdown module - regularly posts a launch countdown to a specified channel
  */
 export class Countdown {
 
-    /** Command prefix; carried over from the environment */
-    private readonly commandPrefix = process.env.DISCORD_COMMAND_PREFIX!;
+    /** Countdown Channel ID to post messages to */
+    private readonly countdownChannelId = process.env.MODULE_COUNTDOWN_CHANNEL_ID!;
 
-    /** Client User; for ensuring that the Bot doesn't reply to itself */
-    private readonly clientUser: ClientUser;
-
-    /** List of commands which will trigger a reply */
-    private readonly commands = [
-        `${this.commandPrefix}countdown`,
-        `${this.commandPrefix}launch`,
-        `${this.commandPrefix}when`
-    ];
-
-    /** Rate limit in ms, from the environment */
-    private readonly rateLimit = parseInt(process.env.MODULE_COUNTDOWN_RATE_LIMIT!, 10);
-
-    /** Launch Block for reply content */
-    private readonly launchBlock = process.env.MODULE_COUNTDOWN_LAUNCH_BLOCK!;
-
-    /** Last send timestamp in ms for rate limiting */
-    private lastSend = 0;
-
-    /** Content of the reply */
-    // eslint-ignore-next-line
-    private readonly message = `
-    CryptoVikings is launching at block **18721000**!
-
-Find a countdown to launch here: https://polygonscan.com/block/countdown/${this.launchBlock}
-    `;
+    /** Instantiated TextChannel */
+    private channel: TextChannel | undefined;
 
     /**
-     * Constructor - register the 'messageCreate' event handler
-     *
-     * @param client the Discord.js Client
+     * Constructor - retrieve the channel and kick off the Countdown posting
      */
     public constructor(client: Client) {
-        if (!client.user) {
-            throw Error('Client User Null');
-        }
+        client.channels.fetch(this.countdownChannelId).then(
+            (channel) => {
+                if (channel && ChannelUtils.isTextChannel(channel)) {
+                    this.channel = channel;
 
-        this.clientUser = client.user;
-
-        client.on('messageCreate', this.onMessageCreate.bind(this));
+                    channel.messages.fetch({ limit: 1 }).then(
+                        (res) => {
+                            this.start(res.last()?.createdTimestamp);
+                        },
+                        (err) => {
+                            console.error('Error during Countdown initialization', err);
+                        }
+                    );
+                }
+                else {
+                    console.error('Channel is not a TextChannel');
+                }
+            },
+            (err) => {
+                console.error('Error during Countdown initialization', err);
+            }
+        );
     }
 
     /**
-     * Event handler for 'messageCreate' - check that we should respond, and reply
+     * If launch has not passed yet, kick off an automated Countdown posting routine with an emulated self-accelerating interval
      *
-     * @param message the Message
+     * Posts increase in frequency as launch approaches, and then launch is announced once
      */
-    private async onMessageCreate(message: Message): Promise<void> {
-        if (this.shouldRespond(message)) {
-            await message.reply(this.message);
-            this.lastSend = message.createdTimestamp;
+    private start(lastMessageTime?: number): void {
+        /** Internal timeout callback for recalculating the interval and resetting the timeout if appropriate */
+        const onTimeout = (): void => {
+            const timeout = this.getTimeout();
+
+            if (timeout) {
+                // make a post, and set the next timeout
+                this.messageCountdown();
+                setTimeout(onTimeout, timeout);
+            }
+            else {
+                // if timeout is null here, then launch passed - announce it once and do not set a new timeout
+                this.messageLaunched();
+            }
+        }
+
+        // if timeout is null here, then the module was booted after launch - don't do anything
+        const timeout = this.getTimeout();
+        if (timeout) {
+            // if there's a last message, do not post and adjust the first timeout to synchronize with self. Prevents over-posting on reboot
+            if (lastMessageTime) {
+                setTimeout(onTimeout, timeout - (Date.now() - lastMessageTime));
+            }
+            else {
+                this.messageCountdown();
+                setTimeout(onTimeout, timeout);
+            }
         }
     }
 
     /**
-     * Centralised checks for whether or not we should reply to a message
+     * Calculate the appropriate timeout for the next automated post based on our proximity to launch
      *
-     * @param message the Message
+     * Returns null if launch has passed; helps determine behavior both for boot and for ongoing countdown
      *
-     * @returns whether or not we should reply
+     * @returns the timeout
      */
-    private shouldRespond(message: Message): boolean {
-        if (message.author === this.clientUser) {
-            return false;
+    private getTimeout(): number | null {
+        const countdown = TimeUtils.countdown();
+
+        if (countdown.hasPassed) {
+            return null;
         }
 
-        if (message.createdTimestamp - this.lastSend <= this.rateLimit) {
-            return false;
+        if (countdown.weeks > 0 || countdown.days > 0) {
+            // more than a day -> post daily
+            return 1000 * 60 * 60 * 24;
         }
 
-        if (!message.content.startsWith(this.commandPrefix)) {
-            return false;
+        if (countdown.hours > 1) {
+            // more than an hour -> post hourly
+            return 1000 * 60 * 60;
         }
 
-        if (!this.commands.includes(message.content)) {
-            return false;
+        if (countdown.minutes > 30) {
+            // more than 30 minutes -> post every 10 minutes
+            return 1000 * 60 * 10;
         }
 
-        return true;
+        // less than 30 minutes -> post every minute
+        return 1000 * 60;
+    }
+
+    /**
+     * Broadcast an automated countdown message
+     */
+    private messageCountdown(): void {
+        void this.channel?.send(`
+        :crossed_swords:  :shield:  :dagger:  **Minting draws nearer!**  :dagger:  :shield:  :crossed_swords:
+
+\`\`\`markdown
+- UTC - September 25th @ 00:00
+- EST - September 24th @ 20:00
+- PDT - September 24th @ 17:00
+- BST - September 25th @ 01:00
+\`\`\`
+Only ${TimeUtils.getCountdownString()} to go!`);
+    }
+
+    /**
+     * Broadcast an automated one-time launch message
+     */
+    private messageLaunched(): void {
+        void this.channel?.send(`
+        @everyone
+
+:crossed_swords:  :shield:  :dagger:  **MINTING IS LIVE!**  :dagger:  :shield:  :crossed_swords:
+
+Head to <https://cryptovikings.io> to mint!`);
     }
 }
