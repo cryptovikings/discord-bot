@@ -4,8 +4,6 @@ import { TimeUtils } from '../../utils/time';
 
 /**
  * Countdown module - regularly posts a launch countdown to a specified channel
- *
- * // TODO adjust first timeout based on time of last message; synchronize with self/prevent over-posting
  */
 export class Countdown {
 
@@ -24,7 +22,14 @@ export class Countdown {
                 if (channel && ChannelUtils.isTextChannel(channel)) {
                     this.channel = channel;
 
-                    this.start();
+                    channel.messages.fetch({ limit: 1 }).then(
+                        (res) => {
+                            this.start(res.last()?.createdTimestamp);
+                        },
+                        (err) => {
+                            console.error('Error during Countdown initialization', err);
+                        }
+                    );
                 }
                 else {
                     console.error('Channel is not a TextChannel');
@@ -41,7 +46,7 @@ export class Countdown {
      *
      * Posts increase in frequency as launch approaches, and then launch is announced once
      */
-    private start(): void {
+    private start(lastMessageTime?: number): void {
         /** Internal timeout callback for recalculating the interval and resetting the timeout if appropriate */
         const onTimeout = (): void => {
             const timeout = this.getTimeout();
@@ -49,7 +54,6 @@ export class Countdown {
             if (timeout) {
                 // make a post, and set the next timeout
                 this.messageCountdown();
-
                 setTimeout(onTimeout, timeout);
             }
             else {
@@ -61,8 +65,14 @@ export class Countdown {
         // if timeout is null here, then the module was booted after launch - don't do anything
         const timeout = this.getTimeout();
         if (timeout) {
-            this.messageCountdown();
-            setTimeout(onTimeout, timeout);
+            // if there's a last message, do not post and adjust the first timeout to synchronize with self. Prevents over-posting on reboot
+            if (lastMessageTime) {
+                setTimeout(onTimeout, timeout - (Date.now() - lastMessageTime));
+            }
+            else {
+                this.messageCountdown();
+                setTimeout(onTimeout, timeout);
+            }
         }
     }
 
