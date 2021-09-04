@@ -1,7 +1,41 @@
-export class Time {
+/** Interface describing an object containing launch countdown data */
+interface Countdown {
+    hasPassed: boolean;
+    weeks: number;
+    days: number;
+    hours: number;
+    minutes: number;
+    seconds: number;
+}
+
+/**
+ * Utilities associated with Time and Countdowns
+ */
+export class TimeUtils {
 
     /** Launch Time, as copied from the environment */
     private static readonly LAUNCH_TIME = parseInt(process.env.LAUNCH_TIME!, 10);
+
+    /**
+     * Construct a Countdown containing the broken down time until launch from the given time
+     *
+     * @param from the time to calculate from in milliseconds
+     *
+     * @returns the Countdown data
+     */
+    public static timeToLaunch(from: number): Countdown {
+        const { floor, trunc } = Math;
+        const ms = TimeUtils.LAUNCH_TIME - from;
+
+        return {
+            hasPassed: ms <= 0,
+            seconds: trunc((ms / 1000) % 60),
+            minutes: trunc((ms / 1000 / 60) % 60),
+            hours: trunc((ms / 1000 / 60 / 60) % 24),
+            days: trunc((ms / 1000 / 60 / 60 / 24) % 7),
+            weeks: trunc(floor((ms / 1000 / 60 / 60 / 24 / 7)))
+        };
+    }
 
     /**
      * Construct a Countdown string giving the formatted time between `from` (ms) and Countdown.LAUNCH_TIME
@@ -12,58 +46,53 @@ export class Time {
      *
      * @returns a formatted countdown string
      */
-    public static getCountdownString(from: number): string {
-        const { floor, trunc } = Math;
-        const ms = Time.LAUNCH_TIME - from;
+    public static getLaunchString(from: number): string {
+        const countdown = TimeUtils.timeToLaunch(from);
 
-        if (ms <= 0) {
+        if (countdown.hasPassed) {
             return `
             **CryptoVikings minting is live!**
 
 Head to <https://cryptovikings.io> to mint!`;
         }
 
-        const s = trunc((ms / 1000) % 60);
-        const m = trunc((ms / 1000 / 60) % 60);
-        const h = trunc((ms / 1000 / 60 / 60) % 24);
-        const d = trunc((ms / 1000 / 60 / 60 / 24) % 7);
-        const w = trunc(floor((ms / 1000 / 60 / 60 / 24 / 7)));
-
         let comma = false;
         let plural = false;
         let timeStr = '';
 
-        if (w > 0) {
-            plural = w > 1;
-            timeStr += `**${w}** week${plural ? 's' : ''}`;
+        const { weeks, days, hours, minutes, seconds } = countdown;
+
+        if (weeks > 0) {
+            plural = weeks > 1;
+            timeStr += `**${weeks}** week${plural ? 's' : ''}`;
         }
 
-        if (d > 0) {
-            comma = w > 0;
-            plural = d > 1;
+        if (days > 0) {
+            comma = weeks > 0;
+            plural = days > 1;
 
-            timeStr += `${comma ? ',' : ''} **${d}** day${plural ? 's' : ''}`;
+            timeStr += `${comma ? ',' : ''} **${days}** day${plural ? 's' : ''}`;
         }
 
-        if (h > 0) {
-            comma = w > 0 || d > 0;
-            plural = h > 1;
+        if (hours > 0) {
+            comma = weeks > 0 || days > 0;
+            plural = hours > 1;
 
-            timeStr += `${comma ? ',' : ''} **${h}** hour${plural ? 's' : ''}`;
+            timeStr += `${comma ? ',' : ''} **${hours}** hour${plural ? 's' : ''}`;
         }
 
-        if (m > 0) {
-            comma = w > 0 || d > 0 || h > 0;
-            plural = m > 1;
+        if (minutes > 0) {
+            comma = weeks > 0 || days > 0 || hours > 0;
+            plural = minutes > 1;
 
-            timeStr += `${comma ? ',' : ''} **${m}** minute${plural ? 's' : ''}`;
+            timeStr += `${comma ? ',' : ''} **${minutes}** minute${plural ? 's' : ''}`;
         }
 
-        if (s > 0) {
-            comma = w > 0 || d > 0 || h > 0 || m > 0;
-            plural = s > 1;
+        if (seconds > 0) {
+            comma = weeks > 0 || days > 0 || hours > 0 || minutes > 0;
+            plural = seconds > 1;
 
-            timeStr += `${comma ? ',' : ''} **${s}** second${plural ? 's' : ''}`;
+            timeStr += `${comma ? ',' : ''} **${seconds}** second${plural ? 's' : ''}`;
         }
 
         return `

@@ -1,5 +1,5 @@
 import { Client, ClientUser, Message } from 'discord.js';
-import { Time } from '../../utils/time';
+import { TimeUtils } from '../../utils/time';
 
 /**
  * Commands module - reads messages for supported commands and actions them
@@ -75,6 +75,6 @@ export class Commands {
      * @returns response message content
      */
     private commandLaunch(message: Message): string {
-        return Time.getCountdownString(message.createdTimestamp);
+        return TimeUtils.getLaunchString(message.createdTimestamp);
     }
 }

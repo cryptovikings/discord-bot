@@ -1,9 +1,10 @@
-import { Channel, Client, TextChannel } from 'discord.js';
+import { Client, TextChannel } from 'discord.js';
 import { BigNumber } from '@ethersproject/bignumber';
 import { Contract, providers } from 'ethers';
 
 import nornirABI from '../../nornir.abi.json';
 import path from 'path/posix';
+import { ChannelUtils } from '../../utils/channel';
 
 /**
  * Recent Vikings module - listens to Contract `VikingComplete` and posts Viking details in a specific channel
@@ -39,7 +40,7 @@ export class RecentVikings {
     public constructor(client: Client) {
         client.channels.fetch(this.recentVikingsChannelId).then(
             (channel) => {
-                if (channel && this.isTextChannel(channel)) {
+                if (channel && ChannelUtils.isTextChannel(channel)) {
                     this.channel = channel;
 
                     this.provider.pollingInterval = this.pollingInterval;
@@ -51,23 +52,9 @@ export class RecentVikings {
                 }
             },
             (err) => {
-                console.error('Error duringRecent Vikings initialization', err);
+                console.error('Error during Recent Vikings initialization', err);
             }
         );
-    }
-
-    /**
-     * Contract VikingComplete event handler - send a message to the feed channel
-     *
-     * @param id
-     */
-    private onVikingComplete(id: BigNumber): void {
-        void this.channel?.send({
-            content: this.message(id.toNumber()),
-            files: [
-                `${this.vikingImageDirectory}/viking_${id.toNumber()}.png`
-            ]
-        });
     }
 
     /**
@@ -77,20 +64,26 @@ export class RecentVikings {
      *
      * @returns the message
      */
-    private message = (id: number): string => `
-    **New CryptoViking!**
+    private message(id: number): string {
+        return `
+        **New CryptoViking!**
 
-Viking #${id} has just been minted! Check him out: https://cryptovikings.io/vikings/${id}
-`;
+Viking #${id} has just been minted! Check him out: https://cryptovikings.io/vikings/${id}`;
+    }
 
     /**
-     * Type Guard for differentiating TextChannels from Channels
+     * Contract VikingComplete event handler - send a message to the feed channel
      *
-     * @param channel the channel to check
-     *
-     * @returns whether or not the channel is a TextChannel
+     * @param id the received Viking ID
      */
-    private isTextChannel(channel: Channel | TextChannel): channel is TextChannel {
-        return !!(channel as TextChannel).send;
+    private onVikingComplete(id: BigNumber): void {
+        const n = id.toNumber();
+
+        void this.channel?.send({
+            content: this.message(n),
+            files: [
+                `${this.vikingImageDirectory}/viking_${n}.png`
+            ]
+        });
     }
 }
