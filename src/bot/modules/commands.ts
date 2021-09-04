@@ -1,4 +1,5 @@
 import { Client, ClientUser, Message } from 'discord.js';
+import { Time } from '../../utils/time';
 
 /**
  * Commands module - reads messages for supported commands and actions them
@@ -6,34 +7,19 @@ import { Client, ClientUser, Message } from 'discord.js';
 export class Commands {
 
     /** Command prefix; carried over from the environment */
-    private readonly commandPrefix = process.env.DISCORD_COMMAND_PREFIX!;
+    private readonly commandPrefix = process.env.MODULE_COMMANDS_PREFIX!;
 
     /** Client User; for ensuring that the Bot doesn't reply to itself */
     private readonly clientUser: ClientUser;
 
-    /** List of commands which will trigger a reply */
-    private readonly commands = [
-        `${this.commandPrefix}countdown`,
-        `${this.commandPrefix}launch`,
-        `${this.commandPrefix}when`
-    ];
+    /** Supported commands, their 'lastSend' for per-command rate limiting, and their handler methods */
+    private readonly commands: { [command: string]: [number, (message: Message) => string] } = {
+        'help': [0, this.commandHelp],
+        'launch': [0, this.commandLaunch]
+    };
 
     /** Rate limit in ms, from the environment */
-    private readonly rateLimit = parseInt(process.env.MODULE_COUNTDOWN_RATE_LIMIT!, 10);
-
-    /** Launch Block for reply content */
-    private readonly launchBlock = process.env.MODULE_COUNTDOWN_LAUNCH_BLOCK!;
-
-    /** Last send timestamp in ms for rate limiting */
-    private lastSend = 0;
-
-    /** Content of the reply */
-    // eslint-ignore-next-line
-    private readonly message = `
-    CryptoVikings is launching at block **18721000**!
-
-Find a countdown to launch here: https://polygonscan.com/block/countdown/${this.launchBlock}
-    `;
+    private readonly rateLimit = parseInt(process.env.MODULE_COMMANDS_RATE_LIMIT!, 10);
 
     /**
      * Constructor - register the 'messageCreate' event handler
@@ -55,37 +41,40 @@ Find a countdown to launch here: https://polygonscan.com/block/countdown/${this.
      *
      * @param message the Message
      */
-    private async onMessageCreate(message: Message): Promise<void> {
-        if (this.shouldRespond(message)) {
-            await message.reply(this.message);
-            this.lastSend = message.createdTimestamp;
+    private onMessageCreate(message: Message): void {
+        const { content } = message;
+
+        if (message.author !== this.clientUser && content.startsWith(this.commandPrefix)) {
+            const command = content.substr(1);
+
+            const [lastSend, handler] = this.commands[command];
+
+            if (message.createdTimestamp - lastSend > this.rateLimit) {
+                this.commands[command][0] = message.createdTimestamp;
+
+                void message.reply(handler.apply(this, [message]));
+            }
         }
     }
 
     /**
-     * Centralised checks for whether or not we should reply to a message
+     * Command handler for `help`
      *
-     * @param message the Message
-     *
-     * @returns whether or not we should reply
+     * @returns response message content
      */
-    private shouldRespond(message: Message): boolean {
-        if (message.author === this.clientUser) {
-            return false;
-        }
+    private commandHelp(): string {
+        return `
+        **CryptoVikings Bot Help**
 
-        if (message.createdTimestamp - this.lastSend <= this.rateLimit) {
-            return false;
-        }
+\`~launch\` - find out when minting begins`;
+    }
 
-        if (!message.content.startsWith(this.commandPrefix)) {
-            return false;
-        }
-
-        if (!this.commands.includes(message.content)) {
-            return false;
-        }
-
-        return true;
+    /**
+     * Command handler for `launch` - respond with information about the launch of CryptoVikings
+     *
+     * @returns response message content
+     */
+    private commandLaunch(message: Message): string {
+        return Time.getCountdownString(message.createdTimestamp);
     }
 }
