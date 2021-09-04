@@ -17,15 +17,24 @@ export class TimeUtils {
     private static readonly LAUNCH_TIME = parseInt(process.env.LAUNCH_TIME!, 10);
 
     /**
+     * Check for whether or not CryptoVikings minting has begun
+     *
+     * @returns whether or not minting has begun
+     */
+    public static hasLaunched(): boolean {
+        return TimeUtils.LAUNCH_TIME - Date.now() <= 0;
+    }
+
+    /**
      * Construct a Countdown containing the broken down time until launch from the given time
      *
      * @param from the time to calculate from in milliseconds
      *
      * @returns the Countdown data
      */
-    public static timeToLaunch(from: number): Countdown {
+    public static countdown(): Countdown {
         const { floor, trunc } = Math;
-        const ms = TimeUtils.LAUNCH_TIME - from;
+        const ms = TimeUtils.LAUNCH_TIME - Date.now();
 
         return {
             hasPassed: ms <= 0,
@@ -38,7 +47,7 @@ export class TimeUtils {
     }
 
     /**
-     * Construct a Countdown string giving the formatted time between `from` (ms) and Countdown.LAUNCH_TIME
+     * Construct a Countdown string giving the formatted time between `from` (ms) and LAUNCH_TIME
      *
      * Countdown string is of the form "{w} weeks, {d} days, {h} hours, {m} minutes, {s} seconds}"
      *
@@ -46,15 +55,8 @@ export class TimeUtils {
      *
      * @returns a formatted countdown string
      */
-    public static getLaunchString(from: number): string {
-        const countdown = TimeUtils.timeToLaunch(from);
-
-        if (countdown.hasPassed) {
-            return `
-            **CryptoVikings minting is live!**
-
-Head to <https://cryptovikings.io> to mint!`;
-        }
+    public static getCountdownString(): string {
+        const countdown = TimeUtils.countdown();
 
         let comma = false;
         let plural = false;
@@ -95,16 +97,6 @@ Head to <https://cryptovikings.io> to mint!`;
             timeStr += `${comma ? ',' : ''} **${seconds}** second${plural ? 's' : ''}`;
         }
 
-        return `
-        ** CryptoVikings minting is coming soon!**
-
-\`\`\`markdown
-- UTC - September 25th @ 00:00
-- EST - September 24th @ 20:00
-- PDT - September 24th @ 17:00
-- BST - September 25th @ 01:00
-\`\`\`
-Only ${timeStr} to go!
-        `;
+        return timeStr;
     }
 }

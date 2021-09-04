@@ -13,7 +13,7 @@ export class Commands {
     private readonly clientUser: ClientUser;
 
     /** Supported commands, their 'lastSend' for per-command rate limiting, and their handler methods */
-    private readonly commands: { [command: string]: [number, (message: Message) => string] } = {
+    private readonly commands: { [command: string]: [number, () => string] } = {
         'help': [0, this.commandHelp],
         'launch': [0, this.commandLaunch]
     };
@@ -52,7 +52,7 @@ export class Commands {
             if (message.createdTimestamp - lastSend > this.rateLimit) {
                 this.commands[command][0] = message.createdTimestamp;
 
-                void message.reply(handler.apply(this, [message]));
+                void message.reply(handler());
             }
         }
     }
@@ -74,7 +74,24 @@ export class Commands {
      *
      * @returns response message content
      */
-    private commandLaunch(message: Message): string {
-        return TimeUtils.getLaunchString(message.createdTimestamp);
+    private commandLaunch(): string {
+        if (TimeUtils.hasLaunched()) {
+            return `
+            **CryptoVikings minting is live!**
+
+Head to <https://cryptovikings.io> to mint!`;
+        }
+
+        return `
+        **CryptoVikings minting is coming soon!**
+
+\`\`\`markdown
+- UTC - September 25th @ 00:00
+- EST - September 24th @ 20:00
+- PDT - September 24th @ 17:00
+- BST - September 25th @ 01:00
+\`\`\`
+Only ${TimeUtils.getCountdownString()} to go!
+        `;
     }
 }
