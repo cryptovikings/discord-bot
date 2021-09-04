@@ -66,7 +66,7 @@ export class RecentVikings {
      */
     private message(id: number): string {
         return `
-        **New CryptoViking!**
+        :crossed_swords:  :shield:  :dagger:  **NEW CRYPTOVIKING!**  :dagger:  :shield:  :crossed_swords:
 
 Viking #${id} has just been minted! Check him out: https://cryptovikings.io/vikings/${id}`;
     }

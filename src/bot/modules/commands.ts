@@ -70,20 +70,20 @@ export class Commands {
     }
 
     /**
-     * Command handler for `launch` - respond with information about the launch of CryptoVikings
+     * Command handler for `launch`
      *
      * @returns response message content
      */
     private commandLaunch(): string {
         if (TimeUtils.hasLaunched()) {
             return `
-            **CryptoVikings minting is live!**
+            :crossed_swords:  :shield:  :dagger:  **MINTING IS LIVE!**  :dagger:  :shield:  :crossed_swords:
 
 Head to <https://cryptovikings.io> to mint!`;
         }
 
         return `
-        **CryptoVikings minting is coming soon!**
+        :crossed_swords:  :shield:  :dagger:  **Minting draws nearer!**  :dagger:  :shield:  :crossed_swords:
 
 \`\`\`markdown
 - UTC - September 25th @ 00:00

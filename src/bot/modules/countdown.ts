@@ -4,6 +4,8 @@ import { TimeUtils } from '../../utils/time';
 
 /**
  * Countdown module - regularly posts a launch countdown to a specified channel
+ *
+ * // TODO adjust first timeout based on time of last message; synchronize with self/prevent over-posting
  */
 export class Countdown {
 
@@ -38,9 +40,6 @@ export class Countdown {
      * If launch has not passed yet, kick off an automated Countdown posting routine with an emulated self-accelerating interval
      *
      * Posts increase in frequency as launch approaches, and then launch is announced once
-     *
-     * // TODO adjust first post time based on last post time to handle reboots
-     * // TODO attempt to synchronize?
      */
     private start(): void {
         /** Internal timeout callback for recalculating the interval and resetting the timeout if appropriate */
@@ -100,31 +99,31 @@ export class Countdown {
         return 1000 * 60;
     }
 
+    /**
+     * Broadcast an automated countdown message
+     */
     private messageCountdown(): void {
         void this.channel?.send(`
-        **Minting draws nearer!**
+        :crossed_swords:  :shield:  :dagger:  **Minting draws nearer!**  :dagger:  :shield:  :crossed_swords:
 
+\`\`\`markdown
+- UTC - September 25th @ 00:00
+- EST - September 24th @ 20:00
+- PDT - September 24th @ 17:00
+- BST - September 25th @ 01:00
+\`\`\`
 Only ${TimeUtils.getCountdownString()} to go!`);
     }
 
+    /**
+     * Broadcast an automated one-time launch message
+     */
     private messageLaunched(): void {
         void this.channel?.send(`
-        **CryptoVikings minting is live! **
+        @everyone
 
-Head to < https://cryptovikings.io> to mint!`);
-    }
+:crossed_swords:  :shield:  :dagger:  **MINTING IS LIVE!**  :dagger:  :shield:  :crossed_swords:
 
-    /**
-     * Message constructor for a given
-     *
-     * @param id the ID of the Viking
-     *
-     * @returns the message
-     */
-    private message(id: number): string {
-        return `
-        **New CryptoViking!**
-
-Viking #${id} has just been minted! Check him out: https://cryptovikings.io/vikings/${id}`;
+Head to <https://cryptovikings.io> to mint!`);
     }
 }
