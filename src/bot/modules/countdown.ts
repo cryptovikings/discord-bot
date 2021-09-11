@@ -1,5 +1,6 @@
 import { Client, TextChannel } from 'discord.js';
 import { ChannelUtils } from '../../utils/channel';
+import { ContentUtils } from '../../utils/content';
 import { TimeUtils } from '../../utils/time';
 
 /**
@@ -113,27 +114,13 @@ export class Countdown {
      * Broadcast an automated countdown message
      */
     private messageCountdown(): void {
-        void this.channel?.send(`
-        :crossed_swords:  :shield:  :dagger:  **Minting draws nearer!**  :dagger:  :shield:  :crossed_swords:
-
-\`\`\`markdown
-- UTC - September 25th @ 00:00
-- EST - September 24th @ 20:00
-- PDT - September 24th @ 17:00
-- BST - September 25th @ 01:00
-\`\`\`
-Only ${TimeUtils.getCountdownString()} to go!`);
+        void this.channel?.send(ContentUtils.countdownContent());
     }
 
     /**
      * Broadcast an automated one-time launch message
      */
     private messageLaunched(): void {
-        void this.channel?.send(`
-        @everyone
-
-:crossed_swords:  :shield:  :dagger:  **MINTING IS LIVE!**  :dagger:  :shield:  :crossed_swords:
-
-Head to <https://cryptovikings.io> to mint!`);
+        void this.channel?.send(ContentUtils.launchedContent(true));
     }
 }
