@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { TimeUtils } from './time';
 
 /**
@@ -41,5 +42,36 @@ Head to <https://cryptovikings.io> to mint!`;
         return `:crossed_swords:  :shield:  :dagger:  **MINTING IS LIVE!**  :dagger:  :shield:  :crossed_swords:
 
 Head to <https://cryptovikings.io> to mint!`;
+    }
+
+    /**
+     * Content for explaining to people how to get WETH to purchase CryptoVikings
+     *
+     * @returns the WETH content
+     */
+    public static wethExplainerContent(): string {
+        return `**__How to get WETH__**
+
+**Bridging**
+
+If you use the main Polygon Bridge, the ETH you'll have once the bridge has completed is actually the WETH you need to purchase CryptoVikings. Nothing else needs to be done, you're ready!
+
+**Swapping**
+
+Here's some easy access links to get the WETH needed. Always check, double-check and triple-check links prior to interacting with contracts though. You can select WETH from any of these DEX's below, these links just select WETH for you.
+
+Sushi: <https://app.sushi.com/swap?outputCurrency=0x7ceb23fd6bc0add59e62ac25578270cff1b9f619>
+
+QuickSwap: <https://quickswap.exchange/#/swap?outputCurrency=0x7ceb23fd6bc0add59e62ac25578270cff1b9f619>
+
+ParaSwap: <https://paraswap.io/#/MATIC-ETH?network=polygon>
+
+1inch: <https://app.1inch.io/#/137/swap/MATIC/ETH>
+
+**WETH Contract**
+
+Address: \`0x7ceb23fd6bc0add59e62ac25578270cff1b9f619\`
+
+PolygonScan: <https://polygonscan.com/token/0x7ceb23fd6bc0add59e62ac25578270cff1b9f619>`;
     }
 }

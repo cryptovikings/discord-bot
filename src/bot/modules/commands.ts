@@ -16,7 +16,8 @@ export class Commands {
     /** Supported commands, their 'lastSend' for per-command rate limiting, and their handler methods */
     private readonly commands: { [command: string]: [number, () => string] } = {
         'help': [0, this.commandHelp],
-        'launch': [0, this.commandLaunch]
+        'launch': [0, this.commandLaunch],
+        'weth': [0, this.commandWeth],
     };
 
     /** Rate limit in ms, from the environment */
@@ -81,5 +82,14 @@ export class Commands {
         }
 
         return ContentUtils.countdownContent();
+    }
+
+    /**
+     * Command handler for `weth`
+     *
+     * @returns response message content
+     */
+    private commandWeth(): string {
+        return ContentUtils.wethExplainerContent();
     }
 }
