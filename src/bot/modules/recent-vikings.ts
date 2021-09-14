@@ -5,6 +5,7 @@ import { Contract, providers } from 'ethers';
 import nornirABI from '../../nornir.abi.json';
 import path from 'path/posix';
 import { ChannelUtils } from '../../utils/channel';
+import { ContentUtils } from '../../utils/content';
 
 /**
  * Recent Vikings module - listens to Contract `VikingComplete` and posts Viking details in a specific channel
@@ -58,20 +59,6 @@ export class RecentVikings {
     }
 
     /**
-     * Message constructor for a given Viking ID
-     *
-     * @param id the ID of the Viking
-     *
-     * @returns the message
-     */
-    private message(id: number): string {
-        return `
-        :crossed_swords:  :shield:  :dagger:  **NEW CRYPTOVIKING!**  :dagger:  :shield:  :crossed_swords:
-
-Viking #${id} has just been minted! Check him out: https://cryptovikings.io/vikings/${id}`;
-    }
-
-    /**
      * Contract VikingComplete event handler - send a message to the feed channel
      *
      * @param id the received Viking ID
@@ -80,7 +67,7 @@ Viking #${id} has just been minted! Check him out: https://cryptovikings.io/viki
         const n = id.toNumber();
 
         void this.channel?.send({
-            content: this.message(n),
+            content: ContentUtils.recentVikingContent(n),
             files: [
                 `${this.vikingImageDirectory}/viking_${n}.png`
             ]

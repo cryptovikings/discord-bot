@@ -7,6 +7,8 @@ import { TimeUtils } from '../../utils/time';
  * Countdown module - regularly posts a launch countdown to a specified channel
  */
 export class Countdown {
+    /** Launch Time, as copied from the environment */
+    private static readonly LAUNCH_TIME = parseInt(process.env.LAUNCH_TIME!, 10);
 
     /** Countdown Channel ID to post messages to */
     private readonly countdownChannelId = process.env.MODULE_COUNTDOWN_CHANNEL_ID!;
@@ -85,7 +87,7 @@ export class Countdown {
      * @returns the timeout
      */
     private getTimeout(): number | null {
-        const countdown = TimeUtils.countdown();
+        const countdown = TimeUtils.countdown(Countdown.LAUNCH_TIME);
 
         if (countdown.hasPassed) {
             return null;
@@ -114,7 +116,7 @@ export class Countdown {
      * Broadcast an automated countdown message
      */
     private messageCountdown(): void {
-        void this.channel?.send(ContentUtils.countdownContent());
+        void this.channel?.send(ContentUtils.countdownContent(Countdown.LAUNCH_TIME));
     }
 
     /**

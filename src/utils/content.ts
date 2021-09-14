@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { TimeUtils } from './time';
 
 /**
@@ -6,11 +7,28 @@ import { TimeUtils } from './time';
 export class ContentUtils {
 
     /**
+     * Presale countdown content for responding to ~presale
+     *
+     * @returns the presale countdown content
+     */
+     public static presaleCountdownContent(launchTime: number): string {
+        return `:crossed_swords:  :shield:  :dagger:  **Presale is coming!**  :dagger:  :shield:  :crossed_swords:
+
+\`\`\`markdown
+- UTC - Wednesday 22nd @ 00:00
+- EST - Tuesday   21st @ 20:00
+- PDT - Tuesday   21st @ 17:00
+- BST - Wednesday 22nd @ 01:00
+\`\`\`
+Only ${TimeUtils.getCountdownString(launchTime)} to go!`;
+    }
+
+    /**
      * Countdown content for responding to ~launch and for posting to #countdown
      *
      * @returns the countdown content
      */
-    public static countdownContent(): string {
+    public static countdownContent(launchTime: number): string {
         return `:crossed_swords:  :shield:  :dagger:  **Minting draws nearer!**  :dagger:  :shield:  :crossed_swords:
 
 \`\`\`markdown
@@ -19,7 +37,7 @@ export class ContentUtils {
 - PDT - September 24th @ 17:00
 - BST - September 25th @ 01:00
 \`\`\`
-Only ${TimeUtils.getCountdownString()} to go!`;
+Only ${TimeUtils.getCountdownString(launchTime)} to go!`;
     }
 
     /**
@@ -29,7 +47,9 @@ Only ${TimeUtils.getCountdownString()} to go!`;
      *
      * @returns the post-launch content
      */
-    public static launchedContent(everyone = false): string {
+    public static launchedContent(everyone = false, presale = false): string {
+        const launchType = presale ? 'PRESALE' : 'MINTING';
+
         if (everyone) {
             return `@everyone
 
@@ -38,8 +58,67 @@ Only ${TimeUtils.getCountdownString()} to go!`;
 Head to <https://cryptovikings.io> to mint!`;
         }
 
-        return `:crossed_swords:  :shield:  :dagger:  **MINTING IS LIVE!**  :dagger:  :shield:  :crossed_swords:
+        return `:crossed_swords:  :shield:  :dagger:  **${launchType} IS LIVE!**  :dagger:  :shield:  :crossed_swords:
 
 Head to <https://cryptovikings.io> to mint!`;
+    }
+
+    /**
+     * Content for explaining to people how to get WETH to purchase CryptoVikings
+     *
+     * @returns the WETH content
+     */
+    public static wethExplainerContent(): string {
+        return `**__How to get WETH__**
+
+**Bridging**
+
+If you use the main Polygon Bridge, the ETH you'll have once the bridge has completed is actually the WETH you need to purchase CryptoVikings. Nothing else needs to be done, you're ready!
+
+**Swapping**
+
+Here's some easy access links to get the WETH needed. Always check, double-check and triple-check links prior to interacting with contracts though. You can select WETH from any of these DEX's below, these links just select WETH for you.
+
+Sushi: <https://app.sushi.com/swap?outputCurrency=0x7ceb23fd6bc0add59e62ac25578270cff1b9f619>
+
+QuickSwap: <https://quickswap.exchange/#/swap?outputCurrency=0x7ceb23fd6bc0add59e62ac25578270cff1b9f619>
+
+ParaSwap: <https://paraswap.io/#/MATIC-ETH?network=polygon>
+
+1inch: <https://app.1inch.io/#/137/swap/MATIC/ETH>
+
+**WETH Contract**
+
+Address: \`0x7ceb23fd6bc0add59e62ac25578270cff1b9f619\`
+
+PolygonScan: <https://polygonscan.com/token/0x7ceb23fd6bc0add59e62ac25578270cff1b9f619>`;
+    }
+
+    /**
+     * Content for recent viking output
+     *
+     * @returns the help content
+     */
+    public static recentVikingContent(id: number): string {
+        return `
+        :crossed_swords:  :shield:  :dagger:  **NEW CRYPTOVIKING!**  :dagger:  :shield:  :crossed_swords:
+
+Viking #${id} has just been minted! Check him out: https://cryptovikings.io/vikings/${id}`;
+    }
+
+    /**
+     * Content for explaining what each command does
+     *
+     * @returns the help content
+     */
+    public static helpContent(): string {
+        return `
+        **CryptoVikings Bot Help**
+
+\`~presale\` - find out when presale begins
+
+\`~launch\` - find out when minting begins
+
+\`~weth\` - find out how to get WETH for purchasing CryptoVikings`;
     }
 }
