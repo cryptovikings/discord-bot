@@ -72,10 +72,7 @@ export class Commands {
      * @returns response message content
      */
     private commandHelp(): string {
-        return `
-        **CryptoVikings Bot Help**
-
-\`~launch\` - find out when minting begins`;
+        return ContentUtils.helpContent();
     }
 
     /**

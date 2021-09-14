@@ -93,4 +93,32 @@ Address: \`0x7ceb23fd6bc0add59e62ac25578270cff1b9f619\`
 
 PolygonScan: <https://polygonscan.com/token/0x7ceb23fd6bc0add59e62ac25578270cff1b9f619>`;
     }
+
+    /**
+     * Content for recent viking output
+     *
+     * @returns the help content
+     */
+    public static recentVikingContent(id: number): string {
+        return `
+        :crossed_swords:  :shield:  :dagger:  **NEW CRYPTOVIKING!**  :dagger:  :shield:  :crossed_swords:
+
+Viking #${id} has just been minted! Check him out: https://cryptovikings.io/vikings/${id}`;
+    }
+
+    /**
+     * Content for explaining what each command does
+     *
+     * @returns the help content
+     */
+    public static helpContent(): string {
+        return `
+        **CryptoVikings Bot Help**
+
+\`~presale\` - find out when presale begins
+
+\`~launch\` - find out when minting begins
+
+\`~weth\` - find out how to get WETH for purchasing CryptoVikings`;
+    }
 }
