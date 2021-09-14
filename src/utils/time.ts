@@ -13,16 +13,13 @@ interface Countdown {
  */
 export class TimeUtils {
 
-    /** Launch Time, as copied from the environment */
-    private static readonly LAUNCH_TIME = parseInt(process.env.LAUNCH_TIME!, 10);
-
     /**
      * Check for whether or not CryptoVikings minting has begun
      *
      * @returns whether or not minting has begun
      */
-    public static hasLaunched(): boolean {
-        return TimeUtils.LAUNCH_TIME - Date.now() <= 0;
+    public static hasLaunched(launchTime: number): boolean {
+        return launchTime - Date.now() <= 0;
     }
 
     /**
@@ -32,9 +29,9 @@ export class TimeUtils {
      *
      * @returns the Countdown data
      */
-    public static countdown(): Countdown {
+    public static countdown(launchTime: number): Countdown {
         const { floor, trunc } = Math;
-        const ms = TimeUtils.LAUNCH_TIME - Date.now();
+        const ms = launchTime - Date.now();
 
         return {
             hasPassed: ms <= 0,
@@ -55,8 +52,8 @@ export class TimeUtils {
      *
      * @returns a formatted countdown string
      */
-    public static getCountdownString(): string {
-        const countdown = TimeUtils.countdown();
+    public static getCountdownString(launchTime: number): string {
+        const countdown = TimeUtils.countdown(launchTime);
 
         let comma = false;
         let plural = false;

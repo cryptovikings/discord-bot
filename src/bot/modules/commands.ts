@@ -7,6 +7,12 @@ import { TimeUtils } from '../../utils/time';
  */
 export class Commands {
 
+    /** Launch Time, as copied from the environment */
+    private static readonly LAUNCH_TIME = parseInt(process.env.LAUNCH_TIME!, 10);
+
+    /** Launch Time, as copied from the environment */
+    private static readonly PRESALE_LAUNCH_TIME = parseInt(process.env.PRESALE_LAUNCH_TIME!, 10);
+
     /** Command prefix; carried over from the environment */
     private readonly commandPrefix = process.env.MODULE_COMMANDS_PREFIX!;
 
@@ -17,6 +23,7 @@ export class Commands {
     private readonly commands: { [command: string]: [number, () => string] } = {
         'help': [0, this.commandHelp],
         'launch': [0, this.commandLaunch],
+        'presale': [0, this.commandPresale],
         'weth': [0, this.commandWeth],
     };
 
@@ -77,11 +84,24 @@ export class Commands {
      * @returns response message content
      */
     private commandLaunch(): string {
-        if (TimeUtils.hasLaunched()) {
+        if (TimeUtils.hasLaunched(Commands.LAUNCH_TIME)) {
             return ContentUtils.launchedContent();
         }
 
-        return ContentUtils.countdownContent();
+        return ContentUtils.countdownContent(Commands.LAUNCH_TIME);
+    }
+
+    /**
+     * Command handler for `presale`
+     *
+     * @returns response message content
+     */
+     private commandPresale(): string {
+        if (TimeUtils.hasLaunched(Commands.PRESALE_LAUNCH_TIME)) {
+            return ContentUtils.launchedContent(false, true);
+        }
+
+        return ContentUtils.presaleCountdownContent(Commands.PRESALE_LAUNCH_TIME);
     }
 
     /**

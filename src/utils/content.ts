@@ -7,11 +7,28 @@ import { TimeUtils } from './time';
 export class ContentUtils {
 
     /**
+     * Presale countdown content for responding to ~presale
+     *
+     * @returns the presale countdown content
+     */
+     public static presaleCountdownContent(launchTime: number): string {
+        return `:crossed_swords:  :shield:  :dagger:  **Presale is coming!**  :dagger:  :shield:  :crossed_swords:
+
+\`\`\`markdown
+- UTC - Wednesday 22nd @ 00:00
+- EST - Tuesday   21st @ 20:00
+- PDT - Tuesday   21st @ 17:00
+- BST - Wednesday 22nd @ 01:00
+\`\`\`
+Only ${TimeUtils.getCountdownString(launchTime)} to go!`;
+    }
+
+    /**
      * Countdown content for responding to ~launch and for posting to #countdown
      *
      * @returns the countdown content
      */
-    public static countdownContent(): string {
+    public static countdownContent(launchTime: number): string {
         return `:crossed_swords:  :shield:  :dagger:  **Minting draws nearer!**  :dagger:  :shield:  :crossed_swords:
 
 \`\`\`markdown
@@ -20,7 +37,7 @@ export class ContentUtils {
 - PDT - September 24th @ 17:00
 - BST - September 25th @ 01:00
 \`\`\`
-Only ${TimeUtils.getCountdownString()} to go!`;
+Only ${TimeUtils.getCountdownString(launchTime)} to go!`;
     }
 
     /**
@@ -30,7 +47,9 @@ Only ${TimeUtils.getCountdownString()} to go!`;
      *
      * @returns the post-launch content
      */
-    public static launchedContent(everyone = false): string {
+    public static launchedContent(everyone = false, presale = false): string {
+        const launchType = presale ? 'PRESALE' : 'MINTING';
+
         if (everyone) {
             return `@everyone
 
@@ -39,7 +58,7 @@ Only ${TimeUtils.getCountdownString()} to go!`;
 Head to <https://cryptovikings.io> to mint!`;
         }
 
-        return `:crossed_swords:  :shield:  :dagger:  **MINTING IS LIVE!**  :dagger:  :shield:  :crossed_swords:
+        return `:crossed_swords:  :shield:  :dagger:  **${launchType} IS LIVE!**  :dagger:  :shield:  :crossed_swords:
 
 Head to <https://cryptovikings.io> to mint!`;
     }
