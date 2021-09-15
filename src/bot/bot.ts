@@ -1,4 +1,6 @@
 import { Client } from 'discord.js';
+import { getLogger } from 'log4js';
+
 import { Commands } from './modules/commands';
 import { Countdown } from './modules/countdown';
 import { RecentVikings } from './modules/recent-vikings';
@@ -29,15 +31,20 @@ export class Bot {
      * @param client the Discord.js client
      */
     public constructor(client: Client) {
+        const logger = getLogger();
+
         if (this.commands) {
+            logger.info('Activating Commands Module');
             new Commands(client);
         }
 
         if (this.countdown) {
+            logger.info('Activating Countdown Module');
             new Countdown(client);
         }
 
         if (this.recentVikings) {
+            logger.info('Activating Recent Vikings Module');
             new RecentVikings(client);
         }
     }

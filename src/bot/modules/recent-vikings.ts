@@ -6,11 +6,15 @@ import nornirABI from '../../nornir.abi.json';
 import path from 'path/posix';
 import { ChannelUtils } from '../../utils/channel';
 import { ContentUtils } from '../../utils/content';
+import { getLogger } from 'log4js';
 
 /**
  * Recent Vikings module - listens to Contract `VikingComplete` and posts Viking details in a specific channel
  */
 export class RecentVikings {
+
+    /** Log4js logger */
+    private static readonly LOGGER = getLogger();
 
     /** Contract address */
     private readonly contractAddress = process.env.ETH_CONTRACT_ADDRESS!;
@@ -39,6 +43,8 @@ export class RecentVikings {
      * @param client the Discord.js Client
      */
     public constructor(client: Client) {
+        RecentVikings.LOGGER.info('Recent Vikings [constructor]: Initializing...');
+
         client.channels.fetch(this.recentVikingsChannelId).then(
             (channel) => {
                 if (channel && ChannelUtils.isTextChannel(channel)) {
@@ -46,14 +52,15 @@ export class RecentVikings {
 
                     this.provider.pollingInterval = this.pollingInterval;
 
+                    RecentVikings.LOGGER.info('Recent Vikings [constructor]: Listening...');
                     this.contract.on('VikingComplete', this.onVikingComplete.bind(this));
                 }
                 else {
-                    console.error('Channel is not a TextChannel');
+                    RecentVikings.LOGGER.error('Recent Vikings [constructor]: Channel is not a TextChannel');
                 }
             },
             (err) => {
-                console.error('Error during Recent Vikings initialization', err);
+                RecentVikings.LOGGER.error('Recent Vikings [constructor]: Error during channel fetch:', err);
             }
         );
     }
@@ -66,11 +73,15 @@ export class RecentVikings {
     private onVikingComplete(id: BigNumber): void {
         const n = id.toNumber();
 
+        RecentVikings.LOGGER.info(`Recent Vikings [onVikingComplete]: Sending Viking with ID ${n}`);
+
         void this.channel?.send({
             content: ContentUtils.recentVikingContent(n),
             files: [
                 `${this.vikingImageDirectory}/viking_${n}.png`
             ]
+        }).catch((err) => {
+            RecentVikings.LOGGER.error(`Recent Vikings [onVikingComplete]: Error sending Viking with ID ${n}`, err);
         });
     }
 }

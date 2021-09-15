@@ -1,6 +1,7 @@
 node_modules
 
 dist
+bot_out
 
 .env
 !.env.example

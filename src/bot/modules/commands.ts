@@ -1,4 +1,6 @@
 import { Client, ClientUser, Message } from 'discord.js';
+import { getLogger } from 'log4js';
+
 import { ContentUtils } from '../../utils/content';
 import { TimeUtils } from '../../utils/time';
 
@@ -12,6 +14,9 @@ export class Commands {
 
     /** Launch Time, as copied from the environment */
     private static readonly PRESALE_LAUNCH_TIME = parseInt(process.env.PRESALE_LAUNCH_TIME!, 10);
+
+    /** Log4js logger */
+    private static readonly LOGGER = getLogger();
 
     /** Command prefix; carried over from the environment */
     private readonly commandPrefix = process.env.MODULE_COMMANDS_PREFIX!;
@@ -37,11 +42,13 @@ export class Commands {
      */
     public constructor(client: Client) {
         if (!client.user) {
+            Commands.LOGGER.fatal('Commands [constructor]: Client User null');
             throw Error('Client User Null');
         }
 
         this.clientUser = client.user;
 
+        Commands.LOGGER.info('Commands [constructor]: Listening...');
         client.on('messageCreate', this.onMessageCreate.bind(this));
     }
 
@@ -56,12 +63,17 @@ export class Commands {
         if (message.author !== this.clientUser && content.startsWith(this.commandPrefix)) {
             const command = content.substr(1);
 
+            Commands.LOGGER.info(`Commands [onMessageCreate]: Command received: ${command}`);
+
             const [lastSend, handler] = this.commands[command];
 
             if (message.createdTimestamp - lastSend > this.rateLimit) {
+                Commands.LOGGER.info('Commands [onMessageCreate]: Replying...')
                 this.commands[command][0] = message.createdTimestamp;
 
-                void message.reply(handler());
+                void message.reply(handler()).catch((err) => {
+                    Commands.LOGGER.error('Commands [onMessageCreate]: Reply failed', err);
+                });
             }
         }
     }
@@ -72,6 +84,7 @@ export class Commands {
      * @returns response message content
      */
     private commandHelp(): string {
+        Commands.LOGGER.info('Commands [commandHelp]: Getting content...');
         return ContentUtils.helpContent();
     }
 
@@ -81,6 +94,8 @@ export class Commands {
      * @returns response message content
      */
     private commandLaunch(): string {
+        Commands.LOGGER.info('Commands [commandLaunch]: Getting content...');
+
         if (TimeUtils.hasLaunched(Commands.LAUNCH_TIME)) {
             return ContentUtils.launchedContent();
         }
@@ -93,7 +108,9 @@ export class Commands {
      *
      * @returns response message content
      */
-     private commandPresale(): string {
+    private commandPresale(): string {
+        Commands.LOGGER.info('Commands [commandPresale]: Getting content...');
+
         if (TimeUtils.hasLaunched(Commands.PRESALE_LAUNCH_TIME)) {
             return ContentUtils.launchedContent(false, true);
         }
@@ -107,6 +124,8 @@ export class Commands {
      * @returns response message content
      */
     private commandWeth(): string {
+        Commands.LOGGER.info('Commands [commandWeth]: Getting content...');
+
         return ContentUtils.wethExplainerContent();
     }
 }
