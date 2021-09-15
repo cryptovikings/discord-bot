@@ -87,7 +87,7 @@ export class Countdown {
 
             // if there's a last message, do not post and adjust the first timeout to synchronize with self. Prevents over-posting on reboot
             if (lastMessageTime) {
-                Countdown.LOGGER.info(`Countdown [start]: Setting timeout at [${timeout - Date.now() - lastMessageTime}]`);
+                Countdown.LOGGER.info(`Countdown [start]: Setting timeout at [${timeout - (Date.now() - lastMessageTime)}]`);
                 setTimeout(onTimeout, timeout - (Date.now() - lastMessageTime));
             }
             else {
