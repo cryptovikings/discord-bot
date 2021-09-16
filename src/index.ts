@@ -41,3 +41,7 @@ client.login(process.env.DISCORD_BOT_TOKEN).then(
         process.exit(1);
     }
 );
+
+client.on('error', (err) => {
+    out.fatal('Client Error', err);
+});
