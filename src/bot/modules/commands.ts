@@ -58,21 +58,29 @@ export class Commands {
      * @param message the Message
      */
     private onMessageCreate(message: Message): void {
-        const { content } = message;
+        try {
+            const { content } = message;
 
-        if (message.author !== this.clientUser && content.startsWith(this.commandPrefix)) {
-            const command = content.substr(1);
-            const [lastSend, handler] = this.commands[command];
+            if (message.author !== this.clientUser && content.startsWith(this.commandPrefix)) {
+                const command = content.substr(1);
 
-            if (handler && message.createdTimestamp - lastSend > this.rateLimit) {
-                Commands.LOGGER.info(`Commands [onMessageCreate]: Command received: ${command} - replying...`);
+                if (Object.keys(this.commands).includes(command)) {
+                    const [lastSend, handler] = this.commands[command];
 
-                this.commands[command][0] = message.createdTimestamp;
+                    if (handler && message.createdTimestamp - lastSend > this.rateLimit) {
+                        Commands.LOGGER.info(`Commands [onMessageCreate]: Command received: ${command} - replying...`);
 
-                void message.reply(handler()).catch((err) => {
-                    Commands.LOGGER.error('Commands [onMessageCreate]: Reply failed', err);
-                });
+                        this.commands[command][0] = message.createdTimestamp;
+
+                        void message.reply(handler()).catch((err) => {
+                            Commands.LOGGER.error('Commands [onMessageCreate]: Reply failed', err);
+                        });
+                    }
+                }
             }
+        }
+        catch (e) {
+            Commands.LOGGER.error('Commands [onMessageCreate]: general error', e);
         }
     }
 
