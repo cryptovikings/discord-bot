@@ -62,13 +62,11 @@ export class Commands {
 
         if (message.author !== this.clientUser && content.startsWith(this.commandPrefix)) {
             const command = content.substr(1);
-
-            Commands.LOGGER.info(`Commands [onMessageCreate]: Command received: ${command}`);
-
             const [lastSend, handler] = this.commands[command];
 
-            if (lastSend && handler && message.createdTimestamp - lastSend > this.rateLimit) {
-                Commands.LOGGER.info('Commands [onMessageCreate]: Replying...')
+            if (handler && message.createdTimestamp - lastSend > this.rateLimit) {
+                Commands.LOGGER.info(`Commands [onMessageCreate]: Command received: ${command} - replying...`);
+
                 this.commands[command][0] = message.createdTimestamp;
 
                 void message.reply(handler()).catch((err) => {
