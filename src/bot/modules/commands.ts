@@ -67,7 +67,7 @@ export class Commands {
 
             const [lastSend, handler] = this.commands[command];
 
-            if (message.createdTimestamp - lastSend > this.rateLimit) {
+            if (lastSend && handler && message.createdTimestamp - lastSend > this.rateLimit) {
                 Commands.LOGGER.info('Commands [onMessageCreate]: Replying...')
                 this.commands[command][0] = message.createdTimestamp;
 
