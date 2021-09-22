@@ -11,7 +11,7 @@ export class ContentUtils {
      *
      * @returns the presale countdown content
      */
-     public static presaleCountdownContent(launchTime: number): string {
+    public static presaleCountdownContent(launchTime: number): string {
         return `:crossed_swords:  :shield:  :dagger:  **Presale is coming!**  :dagger:  :shield:  :crossed_swords:
 
 \`\`\`markdown
@@ -103,7 +103,7 @@ PolygonScan: <https://polygonscan.com/token/0x7ceb23fd6bc0add59e62ac25578270cff1
         return `
         :crossed_swords:  :shield:  :dagger:  **NEW CRYPTOVIKING!**  :dagger:  :shield:  :crossed_swords:
 
-Viking #${id} has just been minted! Check him out: https://cryptovikings.io/vikings/${id}`;
+Viking #${id} has just been minted! Check him out: <https://cryptovikings.io/vikings/${id}>`;
     }
 
     /**
