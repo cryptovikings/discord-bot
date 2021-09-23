@@ -48,8 +48,6 @@ Only ${TimeUtils.getCountdownString(launchTime)} to go!`;
      * @returns the post-launch content
      */
     public static launchedContent(everyone = false, presale = false): string {
-        const launchType = presale ? 'PRESALE' : 'MINTING';
-
         if (everyone) {
             return `@everyone
 
@@ -58,9 +56,25 @@ Only ${TimeUtils.getCountdownString(launchTime)} to go!`;
 Head to <https://cryptovikings.io> to mint!`;
         }
 
-        return `:crossed_swords:  :shield:  :dagger:  **${launchType} IS LIVE!**  :dagger:  :shield:  :crossed_swords:
+        if (presale) {
+            return `:crossed_swords:  :shield:  :dagger:  **PRESALE IS LIVE!**  :dagger:  :shield:  :crossed_swords:
+
+Presale ends at...
+
+\`\`\`markdown
+- UTC - Friday @ 00:00
+- EST - Thursday @ 20:00
+- PDT - Thursday @ 17:00
+- BST - Friday @ 01:00
+\`\`\`
+
+If you are whitelisted head to <https://cryptovikings.io> to mint!`;
+        }
+        else {
+            return `:crossed_swords:  :shield:  :dagger:  **MINTING IS LIVE!**  :dagger:  :shield:  :crossed_swords:
 
 Head to <https://cryptovikings.io> to mint!`;
+        }
     }
 
     /**
